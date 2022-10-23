@@ -6,10 +6,8 @@
         <TheSearch @search-category="searchCategory"
                     :searchKeyword="searchKeyword"
                     :eventType="'searchCategory'"/>
-        <div class="w-50 d-flex justify-content-end mt-1 me-3">
-            <button type="button" class="btn btn-primary"
-            @click="handleCreateCategoryBtn">create</button>
-        </div>
+        <TheCreateBtn :eventType="'createCategoryBtn'"
+                      @create-category-btn="handleCreateCategoryBtn"/>
     </div>
 
     <div class="card-body">
@@ -162,6 +160,7 @@ import TheModal from "@/components/TheModal.vue";
 import bootstrap from "bootstrap/dist/js/bootstrap";
 import TheAlert from "@/components/TheAlert.vue";
 import TheSearch from "@/components/TheSearch.vue";
+import TheCreateBtn from "@/components/TheCreateBtn.vue";
 const store = useStore()
 const pageSize = ref(5);
 
