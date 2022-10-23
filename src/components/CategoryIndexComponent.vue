@@ -6,11 +6,6 @@
         <TheSearch @search-category="searchCategory"
                     :searchKeyword="searchKeyword"
                     :eventType="'searchCategory'"/>
-<!--        <form class="d-flex w-50 mt-1 ms-3" role="search" @submit.prevent="searchCategory">-->
-<!--            <input class="form-control me-2 w-50" type="search" placeholder="Search"-->
-<!--                   v-model="searchKeyword" aria-label="Search">-->
-<!--            <button class="btn btn-outline-success" type="submit">Search</button>-->
-<!--        </form>-->
         <div class="w-50 d-flex justify-content-end mt-1 me-3">
             <button type="button" class="btn btn-primary"
             @click="handleCreateCategoryBtn">create</button>
