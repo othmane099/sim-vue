@@ -1,5 +1,7 @@
 <template>
-    <TheAlert :alert="alert"/>
+    <div v-if="alert">
+        <TheAlert :classes="'alert alert-success'" :alert="alert"/>
+    </div>
 
     <h5 class="card-header">Categories</h5>
     <div class="d-flex">
@@ -12,7 +14,7 @@
 
     <div class="card-body">
         <div v-if="isLoading">
-            <div class="h3">Loading...</div>
+            <TheLoading />
         </div>
         <div v-else>
             <div v-if="!errorMessage">
@@ -53,43 +55,23 @@
                     </tbody>
                 </table>
                 <div class="float-start">
-                    <label for="rpp">Rows per page:</label>
-                    <select name="sizes" id="rpp" @change="changeSize()" v-model="pageSize">
-                        <option>1</option>
-                        <option>5</option>
-                        <option>10</option>
-                        <option>20</option>
-                        <option>30</option>
-                        <option>40</option>
-                        <option>50</option>
-                    </select>
+                    <TheSizeRows @changeSizeEvent="changeSize"
+                    :pageSize="pageSize"
+                    />
                 </div>
                 <div class="d-flex justify-content-end">
-                    <div class="mt-2 me-2">
-                        <span>{{ totalAndNumberOfElts }}</span>
-                    </div>
-                    <nav aria-label="Page navigation example">
-                        <ul class="pagination justify-content-end">
-                            <li class="page-item">
-                                <button type="button" class="page-link" @click="paginate(pageNumber-1)"
-                                        :class="isFirstPage ? 'disabled': ''">Previous</button>
-                            </li>
-                            <li v-for="(p,i) in pages" class="page-item" :class="(i) === pageNumber ? 'active' : ''">
-                                <button type="button" class="page-link" @click="paginate(i)">{{ p }}</button>
-                            </li>
-                            <li class="page-item">
-                                <button type="button" class="page-link" @click="paginate(pageNumber+1)"
-                                        :class="isLastPage ? 'disabled': ''">Next</button>
-                            </li>
-                        </ul>
-                    </nav>
-
+                    <ThePagination
+                        @paginate-event="paginate"
+                        :total-and-number-of-elts="totalAndNumberOfElts"
+                        :is-first-page="isFirstPage"
+                        :is-last-page="isLastPage"
+                        :page-number="pageNumber"
+                        :pages="pages"
+                    />
                 </div>
             </div>
             <div v-else>
-                <div class="alert alert-danger">
-                    {{ errorMessage }}
-                </div>
+                <TheAlert :classes="'alert alert-danger'" :alert="errorMessage"/>
             </div>
         </div>
     </div>
@@ -161,9 +143,11 @@ import bootstrap from "bootstrap/dist/js/bootstrap";
 import TheAlert from "@/components/TheAlert.vue";
 import TheSearch from "@/components/TheSearch.vue";
 import TheCreateBtn from "@/components/TheCreateBtn.vue";
+import TheLoading from "@/components/TheLoading.vue";
+import TheSizeRows from "@/components/TheSizeRows.vue";
+import ThePagination from "@/components/ThePagination.vue";
 const store = useStore()
 const pageSize = ref(5);
-
 
 onMounted(() => {
     store.dispatch('getCategories',
@@ -277,12 +261,12 @@ const searchCategory = (key) =>{
     searchKeyword.value = store.getters.getSearchKeyword
 }
 
-const changeSize = () => {
+const changeSize = (newSize) => {
+    pageSize.value = newSize
     store.dispatch('searchCategory', {keyword: searchKeyword.value, page: 0, size: pageSize.value})
 }
 
 const paginate = (p) => {
-    console.log(pageNumber)
     store.dispatch('searchCategory', {keyword: searchKeyword.value, page: p, size: pageSize.value})
 }
 

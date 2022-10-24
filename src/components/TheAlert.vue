@@ -1,11 +1,11 @@
 <template>
-    <div v-if="alert" class="alert alert-success">
+    <div :class="classes">
         {{ alert }}
     </div>
 </template>
 
 <script setup>
-defineProps({ alert: String });
+defineProps({ alert: String, classes: String });
 
 </script>
 
