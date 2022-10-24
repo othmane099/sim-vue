@@ -111,7 +111,8 @@ export default{
         async getCategories({ commit }, payload)  {
             commit('setLoadingTrue')
             const theError = 'Error occurred during loading categories!'
-            const response = await axios.get(`special/categories?keyword=${payload.keyword}&page=${payload.page}&size=${payload.size}`)
+            const response = await axios.get(
+                `special/categories?keyword=${payload.keyword}&page=${payload.page}&size=${payload.size}&sortBy=${payload.sortBy}`)
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')
@@ -211,7 +212,7 @@ export default{
             commit('setLoadingTrue')
             commit('setSearchKeyword', payload.keyword)
             const theError = 'Error occurred during loading categories!'
-            const response = await axios.get(`special/categories?keyword=${payload.keyword}&page=${payload.page}&size=${payload.size}`)
+            const response = await axios.get(`special/categories?keyword=${payload.keyword}&page=${payload.page}&size=${payload.size}&sortBy=${payload.sortBy}`)
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')

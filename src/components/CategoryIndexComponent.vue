@@ -22,38 +22,18 @@
                         <p class="me-2">{{ selectedCategories.length }} rows selected</p>
                         <button class="btn btn-danger" type="button" @click="handleDeleteSelectedCategoryBtn">Delete</button>
                 </div>
-                <table class="table table-bordered">
-                    <thead>
-                    <tr>
-                        <th scope="col">
-                            <input type="checkbox" v-model="isAllSelected" @change="selectAllCategories">
-                            <p class="d-inline-block ms-2">Category Code</p>
-                        </th>
-                        <th scope="col">
-                            <p>Category Name</p>
-                        </th>
-                        <th scope="col">
-                            <p>Action</p>
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr v-for="c in categories" :key="c.id">
-                        <td>
-                            <input type="checkbox" :checked="isChecked(c)"
-                                   @change="selectCategory(c)">
-                            <p class="d-inline-block ms-2">{{ c.categoryCode }}</p>
-                        </td>
-                        <td>{{ c.categoryName }}</td>
-                        <td>
-                            <button type="button" class="btn btn-success me-1"
-                                    @click="handleEditCategoryBtn(c)">E</button>
-                            <button type="button" class="btn btn-danger"
-                                    @click="handleDeleteCategoryBtn(c)">D</button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+                <TheTable
+                    :is-all-selected="isAllSelected"
+                    @selectAllElementsEvent="selectAllCategories"
+                    @selectElementEvent="selectCategory"
+                    @editElementEvent="handleEditCategoryBtn"
+                    @deleteElementEvent="handleDeleteCategoryBtn"
+                    :fields="fields"
+                    :elements="categories"
+                    :is-checked="isChecked"
+                    @sortByFieldEvent="sortByField"
+                />
+
                 <div class="float-start">
                     <TheSizeRows @changeSizeEvent="changeSize"
                     :pageSize="pageSize"
@@ -146,15 +126,21 @@ import TheCreateBtn from "@/components/TheCreateBtn.vue";
 import TheLoading from "@/components/TheLoading.vue";
 import TheSizeRows from "@/components/TheSizeRows.vue";
 import ThePagination from "@/components/ThePagination.vue";
+import TheTable from "@/components/TheTable.vue";
 const store = useStore()
-const pageSize = ref(5);
+const pageSize = ref(10);
+
+const fields = [
+    'Category Code', 'Category Name', 'Actions'
+]
 
 onMounted(() => {
     store.dispatch('getCategories',
     {
         keyword: searchKeyword.value,
         page: 0,
-        size: pageSize.value
+        size: pageSize.value,
+        sortBy: sortBy.value
     })})
 const categories = computed(() => store.getters.getCategories);
 const errorMessage = computed(() => store.getters.getErrorMessage);
@@ -178,6 +164,7 @@ const selectedCategories = ref([]);
 const searchKeyword = ref('')
 const validateForm = ref(true)
 const isAllSelected = ref(false)
+const sortBy = ref('ID_DESC')
 
 const hideModal= (modalId)=> {
     const myModalEl = document.getElementById(modalId);
@@ -257,22 +244,25 @@ onMounted(()=> {
 })
 
 const searchCategory = (key) =>{
-    store.dispatch('searchCategory', {keyword: key, page: 0, size: pageSize.value})
+    store.dispatch('searchCategory',
+        {keyword: key, page: 0, size: pageSize.value, sortBy: 'ID_DESC'})
     searchKeyword.value = store.getters.getSearchKeyword
 }
 
 const changeSize = (newSize) => {
-    pageSize.value = newSize
-    store.dispatch('searchCategory', {keyword: searchKeyword.value, page: 0, size: pageSize.value})
+    pageSize.value = +newSize
+    store.dispatch('searchCategory',
+        {keyword: searchKeyword.value, page: 0, size: pageSize.value, sortBy: sortBy.value})
 }
 
 const paginate = (p) => {
-    store.dispatch('searchCategory', {keyword: searchKeyword.value, page: p, size: pageSize.value})
+    store.dispatch('searchCategory',
+        {keyword: searchKeyword.value, page: p, size: pageSize.value, sortBy: sortBy.value})
 }
 
-const selectAllCategories = () => {
+const selectAllCategories = (isAllSelectedTemp) => {
+    isAllSelected.value = isAllSelectedTemp
     selectedCategories.value.length = 0
-    console.log(isAllSelected.value)
     if (isAllSelected.value){
         for (let i = 0; i < categories.value.length; i++) {
             selectedCategories.value.push(categories.value[i])
@@ -311,6 +301,26 @@ const deleteSelectedCategory = () => {
     initCategory({ id:null, categoryCode:'', categoryName:'' })
 }
 
+const sortByField = (fieldIndex) => {
+    switch (fieldIndex) {
+        case 0:
+            setSortByValue('CATEGORY_CODE')
+            store.dispatch('getCategories',
+                {keyword: searchKeyword.value, page: pageNumber.value, size: pageSize.value, sortBy: sortBy.value})
+            break
+        case 1:
+            setSortByValue('CATEGORY_NAME')
+            store.dispatch('getCategories',
+                {keyword: searchKeyword.value, page: pageNumber.value, size: pageSize.value, sortBy: sortBy.value})
+            break
+    }
+}
+
+const setSortByValue = (fieldName) => {
+    if (sortBy.value === `${fieldName}_ASC`)
+        return sortBy.value = `${fieldName}_DESC`
+    return sortBy.value = `${fieldName}_ASC`
+}
 
 </script>
 
