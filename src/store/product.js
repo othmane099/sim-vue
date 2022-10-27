@@ -3,15 +3,16 @@ import axios from "axios";
 axios.defaults.baseURL = 'http://localhost:8080/'
 
 export default{
+    namespaced: true,
     state: {
-        categories: [],
-        category: {},
+        products: [],
+        product: {},
         loading: false,
         searchKeyword: '',
         page: 0,
         size: 10,
-        alert: '',
         sortBy: 'ID_DESC',
+        alert: '',
         errorMessage: '',
         pagination: {
             last: false,
@@ -25,7 +26,8 @@ export default{
     },
 
     getters: {
-        getCategories: ({ categories }) => categories,
+        getProduct: ({ product }) => product,
+        getProducts: ({ products }) => products,
         getLoading: ({ loading }) => loading,
         getSearchKeyword: ({ searchKeyword }) => searchKeyword,
         getSortBy: ({ sortBy }) => sortBy,
@@ -35,40 +37,40 @@ export default{
     },
 
     mutations: {
-        setCategories(state, payload){
-            state.categories = payload
+        setProducts(state, payload){
+            state.products = payload
         },
 
-        updateCategories(state, payload){
-            state.categories.push(payload)
+        updateProducts(state, payload){
+            state.products.push(payload)
         },
 
-        updateCategoryFromCategories(state, payload){
-            const categories = state.categories
-            const categoryIndex = categories.findIndex(c => c.id === payload.id)
-            categories[categoryIndex] = {
-                ...categories[categoryIndex],
+        updateProductFromProducts(state, payload){
+            const products = state.products
+            const productIndex = products.findIndex(c => c.id === payload.id)
+            products[productIndex] = {
+                ...products[productIndex],
                 ...payload
             }
-            state.categories = categories
+            state.products = products
         },
 
-        deleteCategoryFromCategories(state, payload){
-            const categories = state.categories
-            const categoryIndex = categories.findIndex(c => c.id === payload.id)
-            categories.splice(categoryIndex, 1)
-            state.categories = categories
+        deleteProductFromProducts(state, payload){
+            const products = state.products
+            const productIndex = products.findIndex(c => c.id === payload.id)
+            products.splice(productIndex, 1)
+            state.products = products
         },
 
 
-        deleteSelectedCategoryFromCategories(state, payload){
-            let categories = state.categories
-            categories = categories.filter(( el ) => !payload.includes( el ))
-            state.categories = categories
+        deleteSelectedProductFromProducts(state, payload){
+            let products = state.products
+            products = products.filter(( el ) => !payload.includes( el ))
+            state.products = products
         },
 
-        setCategory(state, payload){
-            state.category = payload
+        setProduct(state, payload){
+            state.product = payload
         },
 
         setPagination(state, payload){
@@ -114,16 +116,31 @@ export default{
 
     actions: {
 
-        async getCategories({ commit }, payload)  {
+        async getProduct({ commit }, productId)  {
             commit('setLoadingTrue')
-            const theError = 'Error occurred during loading categories!'
+            const theError = 'Error occurred during fetching product!'
             const response = await axios.get(
-                `special/categories?keyword=${payload.keyword}&page=${payload.page}&size=${payload.size}&sortBy=${payload.sortBy}`)
+                `special/products/show?pid=${productId}`)
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')
                 })
-            commit('setCategories', response.data.content)
+            commit('setProduct', response.data)
+            commit('setLoadingFalse')
+        },
+
+
+
+        async getProducts({ commit }, payload)  {
+            commit('setLoadingTrue')
+            const theError = 'Error occurred during loading products!'
+            const response = await axios.get(
+                `special/products?keyword=${payload.keyword}&page=${payload.page}&size=${payload.size}&sortBy=${payload.sortBy}`)
+                .catch(() => {
+                    commit('setErrorMessage', theError)
+                    commit('setLoadingFalse')
+                })
+            commit('setProducts', response.data.content)
             commit('setPage', response.data.number)
             commit('setSize', response.data.content)
             commit('setPagination', {
@@ -138,109 +155,92 @@ export default{
             commit('setLoadingFalse')
         },
 
-        async getAllCategories({ commit }){
+        async storeProduct({ commit, dispatch, getters }, product)  {
             commit('setLoadingTrue')
-            const theError = 'Error occurred during loading categories!'
-            const response = await axios.get(
-                `special/categories/all`)
+            const theError = 'Some Errors occurred during creating new product!'
+            const response = await axios.post('special/products/store', product)
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')
                 })
-            commit('setCategories', response.data)
+            // don't need for this next line because it'll be executed in getProducts when route view
+            // commit('updateProducts', response.data)
+            commit('showAlert', 'Product='+response.data.productName+' created successfully!')
+            setTimeout(()=> commit('hideAlert'), 3000);
             commit('setLoadingFalse')
         },
 
-        async storeCategory({ commit, dispatch, getters }, category)  {
+        async updateProduct({ commit, dispatch, getters }, product)  {
             commit('setLoadingTrue')
-            const theError = 'Some Errors occurred during creating new category!'
-            const response = await axios.post('special/categories/store', category)
+            const theError = 'Some Errors occurred during updating product='+product.productName
+            const response = await axios.put('special/products/update', product)
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')
                 })
-            commit('updateCategories', response.data)
-            dispatch('getCategories', {
+
+            dispatch('getProducts', {
                 keyword: getters.getSearchKeyword,
                 page: getters.getPagination.number,
                 size: getters.getPagination.size,
                 sortBy: getters.getSortBy
             })
-            commit('showAlert', 'Category='+response.data.categoryName+' created successfully!')
+            commit('updateProductFromProducts', response.data)
+            commit('showAlert', 'Product updated successfully!')
             setTimeout(()=> commit('hideAlert'), 3000);
             commit('setLoadingFalse')
         },
 
-        async updateCategory({ commit, dispatch, getters }, category)  {
+        async deleteProduct({ commit, dispatch, getters }, product)  {
             commit('setLoadingTrue')
-            const theError = 'Some Errors occurred during updating category='+category.categoryName
-            const response = await axios.put('special/categories/update', category)
+            const theError = 'Some Errors occurred during deleting product='+product.productName
+            const response = await axios.delete('special/products/destroy', { data: { id: product.id } })
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')
                 })
 
-            dispatch('getCategories', {
+            dispatch('getProducts', {
                 keyword: getters.getSearchKeyword,
                 page: getters.getPagination.number,
                 size: getters.getPagination.size,
                 sortBy: getters.getSortBy
             })
-            commit('updateCategoryFromCategories', response.data)
-            commit('showAlert', 'Category updated successfully!')
+            commit('showAlert', 'Product deleted successfully!')
             setTimeout(()=> commit('hideAlert'), 3000);
             commit('setLoadingFalse')
         },
 
-        async deleteCategory({ commit, dispatch, getters }, category)  {
+        async deleteSelectedProducts({ commit, dispatch, getters }, selectedProducts)  {
             commit('setLoadingTrue')
-            const theError = 'Some Errors occurred during deleting category='+category.categoryName
-            const response = await axios.delete('special/categories/destroy', { data: { id: category.id } })
-                .catch(() => {
-                    commit('setErrorMessage', theError)
-                    commit('setLoadingFalse')
-                })
-            dispatch('getCategories', {
-                keyword: getters.getSearchKeyword,
-                page: getters.getPagination.number,
-                size: getters.getPagination.size,
-                sortBy: getters.getSortBy
-            })
-            commit('showAlert', 'Category deleted successfully!')
-            setTimeout(()=> commit('hideAlert'), 3000);
-            commit('setLoadingFalse')
-        },
-
-        async deleteSelectedCategory({ commit, dispatch, getters }, selectedCategories)  {
-            commit('setLoadingTrue')
-            const theError = 'Some Errors occurred during deleting selected categories'
-            const response = await axios.delete('special/categories/destroyAll', { data:  selectedCategories  })
+            const theError = 'Some Errors occurred during deleting selected products'
+            const response = await axios.delete('special/products/destroyAll', { data:  selectedProducts  })
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')
                 })
 
-            dispatch('getCategories', {
+            dispatch('getProducts', {
                 keyword: getters.getSearchKeyword,
                 page: getters.getPagination.number,
                 size: getters.getPagination.size,
                 sortBy: getters.getSortBy
             })
-            commit('showAlert', 'Selected categories deleted successfully!')
+            commit('showAlert', 'Selected products deleted successfully!')
             setTimeout(()=> commit('hideAlert'), 3000);
             commit('setLoadingFalse')
         },
 
-        async searchCategory({ commit }, payload){
+        async searchProduct({ commit }, payload){
             commit('setLoadingTrue')
             commit('setSearchKeyword', payload.keyword)
-            const theError = 'Error occurred during loading categories!'
-            const response = await axios.get(`special/categories?keyword=${payload.keyword}&page=${payload.page}&size=${payload.size}&sortBy=${payload.sortBy}`)
+            const theError = 'Error occurred during loading products!'
+            const response = await axios.get(`special/products?keyword=${payload.keyword}&page=${payload.page}&size=${payload.size}&sortBy=${payload.sortBy}`)
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')
                 })
-            commit('setCategories', response.data.content)
+            commit('setProducts', response.data.content)
             commit('setPagination', {
                 last: response.data.last,
                 totalElements: response.data.totalElements,

@@ -19,6 +19,18 @@ const router = createRouter({
       component: () => import('../components/ProductIndexComponent.vue')
     },
     {
+      path: '/products/edit',
+      name: 'ProductEdit',
+      component: () => import('../components/ProductCreateComponent.vue'),
+      props: true
+    },
+    {
+      path: '/products/show',
+      name: 'ProductShow',
+      component: () => import('../components/ProductShowComponent.vue'),
+      props: true
+    },
+    {
       path: '/categories/index',
       name: 'CategoryIndex',
       component: () => import('../components/CategoryIndexComponent.vue')
