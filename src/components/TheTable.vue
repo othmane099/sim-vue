@@ -2,12 +2,12 @@
     <table class="table table-bordered">
         <thead>
         <tr>
-            <th scope="col" v-for="(field,i) in fields" :key="field"
-            @click="$emit('sortByFieldEvent', i)">
+            <th scope="col" v-for="(field, i) in fields" :key="field">
                 <input v-if="i === 0" type="checkbox"
                        v-model="isAllSelected"
                        @change="$emit('selectAllElementsEvent', isAllSelected)">
-                <p :class="i===0 ? 'd-inline-block ms-2' : ''">{{ field }}</p>
+                <p :class="i===0 ? 'd-inline-block ms-2' : ''"
+                   @click="$emit('sortByFieldEvent', i)">{{ field }}</p>
             </th>
         </tr>
         </thead>

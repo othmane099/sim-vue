@@ -127,6 +127,7 @@ import TheLoading from "@/components/TheLoading.vue";
 import TheSizeRows from "@/components/TheSizeRows.vue";
 import ThePagination from "@/components/ThePagination.vue";
 import TheTable from "@/components/TheTable.vue";
+
 const store = useStore()
 const pageSize = ref(10);
 
@@ -324,6 +325,3 @@ const setSortByValue = (fieldName) => {
 
 </script>
 
-<style scoped>
-
-</style>

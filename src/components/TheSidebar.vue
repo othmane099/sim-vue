@@ -52,11 +52,6 @@ const menu = [
     },
     {
         id: 7,
-        name: 'RoleIndex',
-        label: 'ROLES'
-    },
-    {
-        id: 8,
         name: 'CustomerIndex',
         label: 'CUSTOMERS'
     }]
