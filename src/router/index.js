@@ -51,11 +51,6 @@ const router = createRouter({
       component: () => import('../components/UserIndexComponent.vue')
     },
     {
-      path: '/roles/index',
-      name: 'RoleIndex',
-      component: () => import('../components/RoleIndexComponent.vue')
-    },
-    {
       path: '/customers/index',
       name: 'CustomerIndex',
       component: () => import('../components/CustomerIndexComponent.vue')
