@@ -121,7 +121,6 @@ import {computed, onMounted, reactive, ref} from "vue";
 import store from "@/store";
 import TheAlert from "@/components/TheAlert.vue";
 import TheSearch from "@/components/TheSearch.vue";
-import TheCreateBtn from "@/components/TheCreateBtn.vue";
 import TheLoading from "@/components/TheLoading.vue";
 import TheSizeRows from "@/components/TheSizeRows.vue";
 import ThePagination from "@/components/ThePagination.vue";

@@ -5,8 +5,8 @@ axios.defaults.baseURL = 'http://localhost:8080/'
 export default{
     namespaced: true,
     state: {
-        users: [],
-        user: {},
+        customers: [],
+        customer: {},
         loading: false,
         searchKeyword: '',
         page: 0,
@@ -26,8 +26,8 @@ export default{
     },
 
     getters: {
-        getUser: ({ user }) => user,
-        getUsers: ({ users }) => users,
+        getCustomer: ({ customer }) => customer,
+        getCustomers: ({ customers }) => customers,
         getLoading: ({ loading }) => loading,
         getSearchKeyword: ({ searchKeyword }) => searchKeyword,
         getSortBy: ({ sortBy }) => sortBy,
@@ -37,40 +37,40 @@ export default{
     },
 
     mutations: {
-        setUsers(state, payload){
-            state.users = payload
+        setCustomers(state, payload){
+            state.customers = payload
         },
 
-        updateUsers(state, payload){
-            state.users.push(payload)
+        updateCustomers(state, payload){
+            state.customers.push(payload)
         },
 
-        updateUserFromUsers(state, payload){
-            const users = state.users
-            const userIndex = users.findIndex(c => c.id === payload.id)
-            users[userIndex] = {
-                ...users[userIndex],
+        updateCustomerFromCustomers(state, payload){
+            const customers = state.customers
+            const customerIndex = customers.findIndex(c => c.id === payload.id)
+            customers[customerIndex] = {
+                ...customers[customerIndex],
                 ...payload
             }
-            state.users = users
+            state.customers = customers
         },
 
-        deleteUserFromUsers(state, payload){
-            const users = state.users
-            const userIndex = users.findIndex(c => c.id === payload.id)
-            users.splice(userIndex, 1)
-            state.users = users
+        deleteCustomerFromCustomers(state, payload){
+            const customers = state.customers
+            const customerIndex = customers.findIndex(c => c.id === payload.id)
+            customers.splice(customerIndex, 1)
+            state.customers = customers
         },
 
 
-        deleteSelectedUserFromUsers(state, payload){
-            let users = state.users
-            users = users.filter(( el ) => !payload.includes( el ))
-            state.users = users
+        deleteSelectedCustomerFromCustomers(state, payload){
+            let customers = state.customers
+            customers = customers.filter(( el ) => !payload.includes( el ))
+            state.customers = customers
         },
 
-        setUser(state, payload){
-            state.user = payload
+        setCustomer(state, payload){
+            state.customer = payload
         },
 
         setPagination(state, payload){
@@ -116,31 +116,31 @@ export default{
 
     actions: {
 
-        async getUser({ commit }, userId)  {
+        async getCustomer({ commit }, customerId)  {
             commit('setLoadingTrue')
-            const theError = 'Error occurred during fetching user!'
+            const theError = 'Error occurred during fetching customer!'
             const response = await axios.get(
-                `admin/users/show?pid=${userId}`)
+                `seller/customers/show?pid=${customerId}`)
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')
                 })
-            commit('setUser', response.data)
+            commit('setCustomer', response.data)
             commit('setLoadingFalse')
         },
 
 
 
-        async getUsers({ commit }, payload)  {
+        async getCustomers({ commit }, payload)  {
             commit('setLoadingTrue')
-            const theError = 'Error occurred during loading users!'
+            const theError = 'Error occurred during loading customers!'
             const response = await axios.get(
-                `admin/users?keyword=${payload.keyword}&page=${payload.page}&size=${payload.size}&sortBy=${payload.sortBy}`)
+                `seller/customers?keyword=${payload.keyword}&page=${payload.page}&size=${payload.size}&sortBy=${payload.sortBy}`)
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')
                 })
-            commit('setUsers', response.data.content)
+            commit('setCustomers', response.data.content)
             commit('setPage', response.data.number)
             commit('setSize', response.data.content)
             commit('setPagination', {
@@ -155,59 +155,59 @@ export default{
             commit('setLoadingFalse')
         },
 
-        async storeUser({ commit, dispatch, getters }, user)  {
+        async storeCustomer({ commit, dispatch, getters }, customer)  {
             commit('setLoadingTrue')
-            user.status = false
-            const theError = 'Some Errors occurred during creating new user!'
-            const response = await axios.post('admin/users/store', user)
+            customer.status = false
+            const theError = 'Some Errors occurred during creating new customer!'
+            const response = await axios.post('seller/customers/store', customer)
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')
                 })
-            // don't need for this next line because it'll be executed in getUsers when route view
-            // commit('updateUsers', response.data)
-            dispatch('getUsers', {
+            // don't need for this next line because it'll be executed in getCustomers when route view
+            // commit('updateCustomers', response.data)
+            dispatch('getCustomers', {
                 keyword: getters.getSearchKeyword,
                 page: getters.getPagination.number,
                 size: getters.getPagination.size,
                 sortBy: getters.getSortBy
             })
-            commit('showAlert', 'User='+response.data.username+' created successfully!')
+            commit('showAlert', 'Customer='+response.data.fullName+' created successfully!')
             setTimeout(()=> commit('hideAlert'), 3000);
             commit('setLoadingFalse')
         },
 
-        async updateUser({ commit, dispatch, getters }, user)  {
+        async updateCustomer({ commit, dispatch, getters }, customer)  {
             commit('setLoadingTrue')
-            const theError = 'Some Errors occurred during updating user='+user.username
-            const response = await axios.put('admin/users/update', user)
+            const theError = 'Some Errors occurred during updating customer='+customer.fullName
+            const response = await axios.put('seller/customers/update', customer)
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')
                 })
 
-            dispatch('getUsers', {
+            dispatch('getCustomers', {
                 keyword: getters.getSearchKeyword,
                 page: getters.getPagination.number,
                 size: getters.getPagination.size,
                 sortBy: getters.getSortBy
             })
-            commit('updateUserFromUsers', response.data)
-            commit('showAlert', 'User updated successfully!')
+            // commit('updateCustomerFromCustomers', response.data)
+            commit('showAlert', 'Customer updated successfully!')
             setTimeout(()=> commit('hideAlert'), 3000);
             commit('setLoadingFalse')
         },
 
-        async searchUser({ commit }, payload){
+        async searchCustomer({ commit }, payload){
             commit('setLoadingTrue')
             commit('setSearchKeyword', payload.keyword)
-            const theError = 'Error occurred during loading users!'
-            const response = await axios.get(`admin/users?keyword=${payload.keyword}&page=${payload.page}&size=${payload.size}&sortBy=${payload.sortBy}`)
+            const theError = 'Error occurred during loading customers!'
+            const response = await axios.get(`seller/customers?keyword=${payload.keyword}&page=${payload.page}&size=${payload.size}&sortBy=${payload.sortBy}`)
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')
                 })
-            commit('setUsers', response.data.content)
+            commit('setCustomers', response.data.content)
             commit('setPagination', {
                 last: response.data.last,
                 totalElements: response.data.totalElements,

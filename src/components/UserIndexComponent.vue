@@ -10,7 +10,8 @@
                        :eventType="'searchUser'"/>
 
         <div class="w-50 d-flex justify-content-end mt-1 me-3">
-            <button type="button" class="btn btn-warning">Filter</button>
+            <button type="button" class="btn btn-warning"
+            @click="handleFilterUsersBtn">Filter</button>
             <button type="button" class="btn btn-danger ms-1">PDF</button>
             <button type="button" class="btn btn-success ms-1">EXCEL</button>
             <button type="button" class="btn btn-primary ms-1"
@@ -82,7 +83,7 @@
 
     </div>
 
-    <!-- Create Category Modal -->
+    <!-- Create User Modal -->
     <TheModal :id="'createUserModal'"
               :modalTitle="'Create'"
               :eventType="'createUserEvent'"
@@ -155,7 +156,7 @@
 
     </TheModal>
 
-    <!-- Update Category Modal -->
+    <!-- Update User Modal -->
     <TheModal :id="'updateUserModal'"
               :modalTitle="'Update'"
               :eventType="'updateUserEvent'"
@@ -226,6 +227,41 @@
             </div>
         </div>
     </TheModal>
+
+    <!-- Filter User Modal -->
+    <TheModal :id="'filterUsersModal'"
+              :modalTitle="'Filter'"
+              :eventType="'filterUsersEvent'"
+              @filter-users-event="filterUsers">
+        <div class="row">
+            <div class="mt-3">
+                <label for="fUserUsernameField" class="form-label">Username</label>
+                <input id="fUserUsernameField" type="text" class="form-control"
+                       placeholder="Search By Username" v-model="filterForm.username">
+            </div>
+
+            <div class="mt-3">
+                <label for="fUserPhoneField" class="form-label">Phone</label>
+                <input id="fUserPhoneField" type="text" class="form-control"
+                       placeholder="Search By Phone" v-model="filterForm.phone">
+            </div>
+
+            <div class="mt-3">
+                <label for="fUserEmailField" class="form-label">Email</label>
+                <input id="fUserEmailField" type="text" class="form-control"
+                       placeholder="Search By Email" v-model="filterForm.email">
+            </div>
+
+            <div class="mt-3">
+                <label for="fUserStatusSelect" class="form-label">Status</label>
+                <select id="fUserStatusSelect" class="form-control" v-model="filterForm.status">
+                    <option>Any</option>
+                    <option>Active</option>
+                    <option>Inactive</option>
+                </select>
+            </div>
+        </div>
+    </TheModal>
 </template>
 
 <script setup>
@@ -265,6 +301,13 @@ const user = reactive({
     phone: '',
     status: false,
     roles: [],
+})
+
+const filterForm = reactive({
+    username: '',
+    phone: '',
+    email: '',
+    status: 'Any',
 })
 
 
@@ -394,6 +437,14 @@ const setSortByValue = (fieldName) => {
     if (sortBy.value === `${fieldName}_ASC`)
         return sortBy.value = `${fieldName}_DESC`
     return sortBy.value = `${fieldName}_ASC`
+}
+
+const handleFilterUsersBtn = () => {
+    showModal('#filterUsersModal')
+}
+
+const filterUsers = () => {
+
 }
 
 </script>
