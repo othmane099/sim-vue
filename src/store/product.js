@@ -155,6 +155,19 @@ export default{
             commit('setLoadingFalse')
         },
 
+        async getAllProductsByKeyword({ commit }, keyword)  {
+            commit('setLoadingTrue')
+            const theError = 'Error occurred during loading products!'
+            const response = await axios.get(
+                `special/products/search?keyword=${keyword}`)
+                .catch(() => {
+                    commit('setErrorMessage', theError)
+                    commit('setLoadingFalse')
+                })
+            commit('setProducts', response.data)
+            commit('setLoadingFalse')
+        },
+
         async storeProduct({ commit, dispatch, getters }, product)  {
             commit('setLoadingTrue')
             const theError = 'Some Errors occurred during creating new product!'

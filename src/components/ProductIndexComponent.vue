@@ -126,7 +126,7 @@ import TheSizeRows from "@/components/TheSizeRows.vue";
 import ThePagination from "@/components/ThePagination.vue";
 import TheModal from "@/components/TheModal.vue";
 import bootstrap from "bootstrap/dist/js/bootstrap";
-import {useRoute, useRouter} from "vue-router";
+import {useRouter} from "vue-router";
 
 
 // ref
@@ -142,7 +142,6 @@ const product = reactive({
 const tempProduct = ref({})
 const isAllSelected = ref(false)
 const router = useRouter()
-const route = useRoute()
 
 
 /* computed */

@@ -5,8 +5,8 @@ axios.defaults.baseURL = 'http://localhost:8080/'
 export default{
     namespaced: true,
     state: {
-        customers: [],
-        customer: {},
+        sales: [],
+        sale: {},
         loading: false,
         searchKeyword: '',
         page: 0,
@@ -26,8 +26,8 @@ export default{
     },
 
     getters: {
-        getCustomer: ({ customer }) => customer,
-        getCustomers: ({ customers }) => customers,
+        getSale: ({ sale }) => sale,
+        getSales: ({ sales }) => sales,
         getLoading: ({ loading }) => loading,
         getSearchKeyword: ({ searchKeyword }) => searchKeyword,
         getSortBy: ({ sortBy }) => sortBy,
@@ -37,40 +37,40 @@ export default{
     },
 
     mutations: {
-        setCustomers(state, payload){
-            state.customers = payload
+        setSales(state, payload){
+            state.sales = payload
         },
 
-        updateCustomers(state, payload){
-            state.customers.push(payload)
+        updateSales(state, payload){
+            state.sales.push(payload)
         },
 
-        updateCustomerFromCustomers(state, payload){
-            const customers = state.customers
-            const customerIndex = customers.findIndex(c => c.id === payload.id)
-            customers[customerIndex] = {
-                ...customers[customerIndex],
+        updateSaleFromSales(state, payload){
+            const sales = state.sales
+            const saleIndex = sales.findIndex(c => c.id === payload.id)
+            sales[saleIndex] = {
+                ...sales[saleIndex],
                 ...payload
             }
-            state.customers = customers
+            state.sales = sales
         },
 
-        deleteCustomerFromCustomers(state, payload){
-            const customers = state.customers
-            const customerIndex = customers.findIndex(c => c.id === payload.id)
-            customers.splice(customerIndex, 1)
-            state.customers = customers
+        deleteSaleFromSales(state, payload){
+            const sales = state.sales
+            const saleIndex = sales.findIndex(c => c.id === payload.id)
+            sales.splice(saleIndex, 1)
+            state.sales = sales
         },
 
 
-        deleteSelectedCustomerFromCustomers(state, payload){
-            let customers = state.customers
-            customers = customers.filter(( el ) => !payload.includes( el ))
-            state.customers = customers
+        deleteSelectedSaleFromSales(state, payload){
+            let sales = state.sales
+            sales = sales.filter(( el ) => !payload.includes( el ))
+            state.sales = sales
         },
 
-        setCustomer(state, payload){
-            state.customer = payload
+        setSale(state, payload){
+            state.sale = payload
         },
 
         setPagination(state, payload){
@@ -116,44 +116,31 @@ export default{
 
     actions: {
 
-        async getAllCustomers({ commit })  {
+        async getSale({ commit }, saleId)  {
             commit('setLoadingTrue')
-            const theError = 'Error occurred during fetching customer!'
+            const theError = 'Error occurred during fetching sale!'
             const response = await axios.get(
-                `seller/customers/all`)
+                `seller/sales/show?sid=${saleId}`)
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')
                 })
-            commit('setCustomers', response.data)
-            commit('setLoadingFalse')
-        },
-
-        async getCustomer({ commit }, customerId)  {
-            commit('setLoadingTrue')
-            const theError = 'Error occurred during fetching customer!'
-            const response = await axios.get(
-                `seller/customers/show?pid=${customerId}`)
-                .catch(() => {
-                    commit('setErrorMessage', theError)
-                    commit('setLoadingFalse')
-                })
-            commit('setCustomer', response.data)
+            commit('setSale', response.data)
             commit('setLoadingFalse')
         },
 
 
 
-        async getCustomers({ commit }, payload)  {
+        async getSales({ commit }, payload)  {
             commit('setLoadingTrue')
-            const theError = 'Error occurred during loading customers!'
+            const theError = 'Error occurred during loading sales!'
             const response = await axios.get(
-                `seller/customers?keyword=${payload.keyword}&page=${payload.page}&size=${payload.size}&sortBy=${payload.sortBy}`)
+                `seller/sales?keyword=${payload.keyword}&page=${payload.page}&size=${payload.size}&sortBy=${payload.sortBy}`)
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')
                 })
-            commit('setCustomers', response.data.content)
+            commit('setSales', response.data.content)
             commit('setPage', response.data.number)
             commit('setSize', response.data.content)
             commit('setPagination', {
@@ -168,59 +155,53 @@ export default{
             commit('setLoadingFalse')
         },
 
-        async storeCustomer({ commit, dispatch, getters }, customer)  {
+        async storeSale({ commit, dispatch, getters }, sale)  {
             commit('setLoadingTrue')
-            customer.status = false
-            const theError = 'Some Errors occurred during creating new customer!'
-            const response = await axios.post('seller/customers/store', customer)
+            sale.status = false
+            const theError = 'Some Errors occurred during creating new sale!'
+            const response = await axios.post('seller/sales/store', sale)
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')
                 })
-            // don't need for this next line because it'll be executed in getCustomers when route view
-            // commit('updateCustomers', response.data)
-            dispatch('getCustomers', {
-                keyword: getters.getSearchKeyword,
-                page: getters.getPagination.number,
-                size: getters.getPagination.size,
-                sortBy: getters.getSortBy
-            })
-            commit('showAlert', 'Customer='+response.data.fullName+' created successfully!')
+            // don't need for this next line because it'll be executed in getSales when route view
+            // commit('updateSales', response.data)
+            commit('showAlert', 'Sale='+response.data.saleCode+' created successfully!')
             setTimeout(()=> commit('hideAlert'), 3000);
             commit('setLoadingFalse')
         },
 
-        async updateCustomer({ commit, dispatch, getters }, customer)  {
+        async updateSale({ commit, dispatch, getters }, sale)  {
             commit('setLoadingTrue')
-            const theError = 'Some Errors occurred during updating customer='+customer.fullName
-            const response = await axios.put('seller/customers/update', customer)
+            const theError = 'Some Errors occurred during updating sale='+sale.salename
+            const response = await axios.put('seller/sales/update', sale)
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')
                 })
 
-            dispatch('getCustomers', {
+            dispatch('getSales', {
                 keyword: getters.getSearchKeyword,
                 page: getters.getPagination.number,
                 size: getters.getPagination.size,
                 sortBy: getters.getSortBy
             })
-            // commit('updateCustomerFromCustomers', response.data)
-            commit('showAlert', 'Customer updated successfully!')
+            commit('updateSaleFromSales', response.data)
+            commit('showAlert', 'Sale updated successfully!')
             setTimeout(()=> commit('hideAlert'), 3000);
             commit('setLoadingFalse')
         },
 
-        async searchCustomer({ commit }, payload){
+        async searchSale({ commit }, payload){
             commit('setLoadingTrue')
             commit('setSearchKeyword', payload.keyword)
-            const theError = 'Error occurred during loading customers!'
-            const response = await axios.get(`seller/customers?keyword=${payload.keyword}&page=${payload.page}&size=${payload.size}&sortBy=${payload.sortBy}`)
+            const theError = 'Error occurred during loading sales!'
+            const response = await axios.get(`seller/sales?keyword=${payload.keyword}&page=${payload.page}&size=${payload.size}&sortBy=${payload.sortBy}`)
                 .catch(() => {
                     commit('setErrorMessage', theError)
                     commit('setLoadingFalse')
                 })
-            commit('setCustomers', response.data.content)
+            commit('setSales', response.data.content)
             commit('setPagination', {
                 last: response.data.last,
                 totalElements: response.data.totalElements,

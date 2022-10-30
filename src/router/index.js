@@ -46,6 +46,12 @@ const router = createRouter({
       component: () => import('../components/SaleIndexComponent.vue')
     },
     {
+      path: '/sales/show',
+      name: 'SaleShow',
+      component: () => import('../components/SaleShowComponent.vue'),
+      props: true
+    },
+    {
       path: '/users/index',
       name: 'UserIndex',
       component: () => import('../components/UserIndexComponent.vue')

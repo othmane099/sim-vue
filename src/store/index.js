@@ -4,6 +4,7 @@ import product from "./product";
 import user from "./user";
 import role from "./role";
 import customer from "./customer";
+import sale from "./sale";
 
 export default createStore({
     modules: {
@@ -11,7 +12,8 @@ export default createStore({
         product,
         user,
         role,
-        customer
+        customer,
+        sale
     },
 });
 
